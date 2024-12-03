@@ -165,4 +165,4 @@ def index():
     return render_template_string(html_template, reward=reward, records=drop_records, total_drops=total_drops, total_gold=total_gold, total_silver=total_silver, total_premium_days=total_premium_days, tank_counts=tank_counts)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5555, debug=True)

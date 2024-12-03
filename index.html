@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>假日行动2025 掉落模拟器</title>
+    <style>
+        .container {
+            display: flex;
+        }
+        .main {
+            flex: 3;
+        }
+        .sidebar {
+            flex: 1;
+            padding-left: 20px;
+        }
+        .fixed-sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 20%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <h1>假日行动2025 掉落模拟器</h1>
+            <p>点击按钮来模拟一次掉落:</p>
+            <button onclick="simulateDrop(1)">模拟掉落</button>
+            <button onclick="simulateDrop(10)">模拟掉落10次</button>
+            <h2>掉落结果: <span id="reward"></span></h2>
+            <h2>掉落记录</h2>
+            <ul id="records"></ul>
+        </div>
+        <div class="sidebar fixed-sidebar">
+            <h2>统计信息</h2>
+            <p>总掉落次数: <span id="total_drops">0</span></p>
+            <p>累计获得金币: <span id="total_gold">0</span></p>
+            <p>累计获得银币: <span id="total_silver">0</span></p>
+            <p>累计获得高级账号天数: <span id="total_premium_days">0</span></p>
+            <h2>获得的坦克</h2>
+            <ul id="tank_counts"></ul>
+        </div>
+    </div>
+    <script>
+        const rewards = [
+            { name: "装饰物", weight: 0.25 },
+            { name: "SU-100I", weight: 0.1166 / 5 },
+            { name: "38(K)", weight: 0.1166 / 5 },
+            { name: "二式炮战车", weight: 0.1166 / 5 },
+            { name: "M3A3 斯图亚特", weight: 0.1166 / 5 },
+            { name: "AMR P.103", weight: 0.1166 / 5 },
+            { name: "高级账号天数1", weight: 0.8594 / 9 },
+            { name: "高级账号天数3", weight: 0.8594 / 9 },
+            { name: "高级账号天数7", weight: 0.8594 / 9 },
+            { name: "金币250", weight: 0.8594 / 9 },
+            { name: "金币500", weight: 0.8594 / 9 },
+            { name: "金币1000", weight: 0.8594 / 9 },
+            { name: "银币100000", weight: 0.8594 / 6 },
+            { name: "银币500000", weight: 0.8594 / 6 },
+            { name: "DZT-159", weight: 0.024 / 5 },
+            { name: "金牛座", weight: 0.024 / 5 },
+            { name: "XM57", weight: 0.024 / 5 },
+            { name: "Vz.68 S", weight: 0.024 / 5 },
+            { name: "FV226 反制者", weight: 0.024 / 5 },
+            { name: "3D风格", weight: 0.05 },
+            { name: "全新3D附件", weight: 0.06 }
+        ];
+
+        const tankCompensation = {
+            "DZT-159": 11900,
+            "金牛座": 12450,
+            "FV226 反制者": 10200,
+            "XM57": 9400,
+            "Vz.68 S": 6500,
+            "SU-100I": 1500,
+            "38(K)": 1300,
+            "二式炮战车": 950,
+            "M3A3 斯图亚特": 500,
+            "AMR P.103": 500
+        };
+
+        const uniqueTanks = ["DZT-159", "金牛座", "FV226 反制者", "XM57", "Vz.68 S"];
+        let obtainedTanks = new Set();
+        let tankCounts = {};
+        let dropRecords = [];
+        let totalDrops = 0;
+        let totalGold = 0;
+        let totalSilver = 0;
+        let totalPremiumDays = 0;
+        let pityCounter = 0;
+
+        // Initialize tankCounts for all tanks
+        for (let tank in tankCompensation) {
+            tankCounts[tank] = 0;
+        }
+
+        function simulateDrop(times) {
+            for (let i = 0; i < times; i++) {
+                pityCounter++;
+                let reward = getDrop();
+                dropRecords.push(reward);
+                document.getElementById("reward").innerText = reward;
+                updateRecords();
+                updateStats(reward);
+            }
+            totalDrops += times;
+            document.getElementById("total_drops").innerText = totalDrops;
+        }
+
+        function getDrop() {
+            if (pityCounter >= 50) {
+                for (let tank of uniqueTanks) {
+                    if (!obtainedTanks.has(tank)) {
+                        obtainedTanks.add(tank);
+                        pityCounter = 0;
+                        return tank;
+                    }
+                }
+            }
+
+            while (true) {
+                let reward = weightedRandom(rewards);
+                if (uniqueTanks.includes(reward) && obtainedTanks.has(reward)) {
+                    continue;
+                }
+                if (uniqueTanks.includes(reward)) {
+                    obtainedTanks.add(reward);
+                    pityCounter = 0;
+                }
+                return reward;
+            }
+        }
+
+        function weightedRandom(items) {
+            let totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+            let random = Math.random() * totalWeight;
+            for (let item of items) {
+                if (random < item.weight) {
+                    return item.name;
+                }
+                random -= item.weight;
+            }
+        }
+
+        function updateRecords() {
+            let recordsList = document.getElementById("records");
+            recordsList.innerHTML = "";
+            dropRecords.forEach(record => {
+                let li = document.createElement("li");
+                li.innerText = record;
+                recordsList.appendChild(li);
+            });
+        }
+
+        function updateStats(reward) {
+            if (tankCompensation[reward]) {
+                if (obtainedTanks.has(reward)) {
+                    totalGold += tankCompensation[reward];
+                }
+                tankCounts[reward]++;
+            } else if (reward.startsWith("金币")) {
+                totalGold += parseInt(reward.slice(2));
+            } else if (reward.startsWith("银币")) {
+                totalSilver += parseInt(reward.slice(2));
+            } else if (reward.startsWith("高级账号天数")) {
+                totalPremiumDays += parseInt(reward.slice(6));
+            }
+
+            document.getElementById("total_gold").innerText = totalGold;
+            document.getElementById("total_silver").innerText = totalSilver;
+            document.getElementById("total_premium_days").innerText = totalPremiumDays;
+
+            let tankCountsList = document.getElementById("tank_counts");
+            tankCountsList.innerHTML = "";
+            for (let tank in tankCounts) {
+                let li = document.createElement("li");
+                li.innerText = `${tank}: ${tankCounts[tank]} 次`;
+                tankCountsList.appendChild(li);
+            }
+        }
+    </script>
+</body>
+</html>
