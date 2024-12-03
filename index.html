@@ -122,14 +122,17 @@
                 }
             }
 
-            let reward = weightedRandom(rewards);
-            if (uniqueTanks.includes(reward) && obtainedTanks.has(reward)) {
-                totalGold += tankCompensation[reward];
-            } else if (uniqueTanks.includes(reward)) {
-                obtainedTanks.add(reward);
-                pityCounter = 0;
+            while (true) {
+                let reward = weightedRandom(rewards);
+                if (uniqueTanks.includes(reward) && obtainedTanks.has(reward) && obtainedTanks.size < uniqueTanks.length) {
+                    continue;
+                }
+                if (uniqueTanks.includes(reward)) {
+                    obtainedTanks.add(reward);
+                    pityCounter = 0;
+                }
+                return reward;
             }
-            return reward;
         }
 
         function weightedRandom(items) {
@@ -161,7 +164,7 @@
 
         function updateStats(reward) {
             if (tankCompensation[reward]) {
-                if (obtainedTanks.has(reward)) {
+                if (obtainedTanks.has(reward) && obtainedTanks.size >= uniqueTanks.length) {
                     totalGold += tankCompensation[reward];
                 }
                 tankCounts[reward]++;
