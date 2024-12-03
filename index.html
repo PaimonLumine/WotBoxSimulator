@@ -29,7 +29,8 @@
             <p>点击按钮来模拟一次掉落:</p>
             <button onclick="simulateDrop(1)">模拟掉落</button>
             <button onclick="simulateDrop(10)">模拟掉落10次</button>
-            <h2>掉落结果: <span id="reward"></span></h2>
+            <h2>掉落结果:</h2>
+            <ul id="reward"></ul>
             <h2>掉落记录</h2>
             <ul id="records"></ul>
         </div>
@@ -97,16 +98,17 @@
         }
 
         function simulateDrop(times) {
+            let rewardsList = [];
             for (let i = 0; i < times; i++) {
                 pityCounter++;
                 let reward = getDrop();
+                rewardsList.push(reward);
                 dropRecords.push(reward);
-                document.getElementById("reward").innerText = reward;
-                updateRecords();
                 updateStats(reward);
             }
             totalDrops += times;
             document.getElementById("total_drops").innerText = totalDrops;
+            updateRecords(rewardsList);
         }
 
         function getDrop() {
@@ -144,13 +146,19 @@
             }
         }
 
-        function updateRecords() {
+        function updateRecords(rewardsList) {
             let recordsList = document.getElementById("records");
-            recordsList.innerHTML = "";
-            dropRecords.forEach(record => {
-                let li = document.createElement("li");
-                li.innerText = record;
-                recordsList.appendChild(li);
+            let rewardListElement = document.getElementById("reward");
+            rewardListElement.innerHTML = "";
+            let recordIndex = dropRecords.length - rewardsList.length + 1;
+            rewardsList.forEach(reward => {
+                let rewardLi = document.createElement("li");
+                rewardLi.innerText = reward;
+                rewardListElement.appendChild(rewardLi);
+
+                let recordLi = document.createElement("li");
+                recordLi.innerText = `${recordIndex++}. ${reward}`;
+                recordsList.appendChild(recordLi);
             });
         }
 
