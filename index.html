@@ -112,7 +112,7 @@
         }
 
         function getDrop() {
-            if (pityCounter >= 50) {
+            if (pityCounter >= 50 && obtainedTanks.size < uniqueTanks.length) {
                 for (let tank of uniqueTanks) {
                     if (!obtainedTanks.has(tank)) {
                         obtainedTanks.add(tank);
@@ -122,17 +122,14 @@
                 }
             }
 
-            while (true) {
-                let reward = weightedRandom(rewards);
-                if (uniqueTanks.includes(reward) && obtainedTanks.has(reward)) {
-                    continue;
-                }
-                if (uniqueTanks.includes(reward)) {
-                    obtainedTanks.add(reward);
-                    pityCounter = 0;
-                }
-                return reward;
+            let reward = weightedRandom(rewards);
+            if (uniqueTanks.includes(reward) && obtainedTanks.has(reward)) {
+                totalGold += tankCompensation[reward];
+            } else if (uniqueTanks.includes(reward)) {
+                obtainedTanks.add(reward);
+                pityCounter = 0;
             }
+            return reward;
         }
 
         function weightedRandom(items) {
