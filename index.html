@@ -124,13 +124,17 @@
         }
 
         function getDrop() {
-            if (pityCounter >= 50 && obtainedTanks.size < uniqueTanks.length) {
-                for (let tank of uniqueTanks) {
-                    if (!obtainedTanks.has(tank)) {
-                        obtainedTanks.add(tank);
-                        pityCounter = 0;
-                        return tank;
-                    }
+            if (pityCounter >= 50) {
+                let availableTanks = uniqueTanks.filter(tank => !obtainedTanks.has(tank));
+                if (availableTanks.length > 0) {
+                    let tank = availableTanks[Math.floor(Math.random() * availableTanks.length)];
+                    obtainedTanks.add(tank);
+                    pityCounter = 0;
+                    return tank;
+                } else {
+                    let tank = uniqueTanks[Math.floor(Math.random() * uniqueTanks.length)];
+                    pityCounter = 0;
+                    return tank;
                 }
             }
 
