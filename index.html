@@ -20,7 +20,19 @@
             top: 0;
             width: 20%;
         }
+        .highlight {
+            color: red;
+        }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V9DT2HLV54"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-V9DT2HLV54');
+    </script>
 </head>
 <body>
     <div class="container">
@@ -158,6 +170,9 @@
 
                 let recordLi = document.createElement("li");
                 recordLi.innerText = `${recordIndex++}. ${reward}`;
+                if (uniqueTanks.includes(reward)) {
+                    recordLi.classList.add("highlight");
+                }
                 recordsList.appendChild(recordLi);
             });
         }
